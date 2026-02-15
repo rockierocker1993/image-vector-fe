@@ -1,5 +1,4 @@
 import { Flex, IconButton, Button, Text, Separator, Badge, Tooltip } from '@radix-ui/themes'
-import * as ToggleGroup from '@radix-ui/react-toggle-group'
 import {
     Palette,
     ZoomIn,
