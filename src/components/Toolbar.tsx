@@ -37,7 +37,7 @@ function ToolbarButton({
                 size="2"
                 onClick={onClick}
                 aria-label={label}
-                style={{ ...customStyle }}
+                style={{ position: 'relative', ...customStyle }}
             >
                 <Icon size={18} />
                 {badge !== undefined && (
