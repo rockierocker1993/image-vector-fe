@@ -5,9 +5,11 @@ import './ResultViewer.css'
 interface ResultViewerProps {
   zoom: number
   onWheelZoom: (delta: number) => void
+  svgContent?: string | null
+  fileName?: string | null
 }
 
-export function ResultViewer({ zoom, onWheelZoom }: ResultViewerProps) {
+export function ResultViewer({ zoom, onWheelZoom, svgContent, fileName }: ResultViewerProps) {
   const canvasRef = useRef<HTMLDivElement>(null)
   const [pan, setPan] = useState({ x: 0, y: 0 })
   const [dragging, setDragging] = useState(false)
@@ -71,18 +73,22 @@ export function ResultViewer({ zoom, onWheelZoom }: ResultViewerProps) {
           }}
         >
           <Flex align="center" justify="center">
-            <img
-              src="https://cdn-icons-png.flaticon.com/512/616/616554.png"
-              alt="Vectorized result"
-              className="result-image"
-              draggable={false}
-            />
+            {svgContent ? (
+              <div
+                className="result-image"
+                dangerouslySetInnerHTML={{ __html: svgContent }}
+              />
+            ) : (
+              <Text size="3" color="gray" style={{ userSelect: 'none' }}>
+                Upload an image to see the vectorized result
+              </Text>
+            )}
           </Flex>
         </Box>
       </Box>
 
       <Text size="2" color="gray" mt="3" weight="regular">
-        test.png (655 x 727 px) — {zoomPercent}%
+        {fileName ? `${fileName} — ${zoomPercent}%` : `${zoomPercent}%`}
       </Text>
     </Flex>
   )

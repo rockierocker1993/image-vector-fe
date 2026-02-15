@@ -1,3 +1,4 @@
+import { useRef } from 'react'
 import { Flex, IconButton, Button, Text, Separator, Badge, Tooltip } from '@radix-ui/themes'
 import {
     Palette,
@@ -9,6 +10,7 @@ import {
     ThumbsDown,
     Download,
     X,
+    Upload,
 } from 'lucide-react'
 import './Toolbar.css'
 
@@ -70,9 +72,26 @@ interface ToolbarProps {
     onZoomOut: () => void
     onZoomReset: () => void
     zoom: number
+    onUpload: (file: File) => void
+    onDownload: () => void
+    hasResult: boolean
 }
 
-export function Toolbar({ onPaletteToggle, paletteOpen, onZoomIn, onZoomOut, onZoomReset, zoom }: ToolbarProps) {
+export function Toolbar({ onPaletteToggle, paletteOpen, onZoomIn, onZoomOut, onZoomReset, zoom, onUpload, onDownload, hasResult }: ToolbarProps) {
+    const fileInputRef = useRef<HTMLInputElement>(null)
+
+    const handleUploadClick = () => {
+        fileInputRef.current?.click()
+    }
+
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0]
+        if (file) {
+            onUpload(file)
+        }
+        // Reset input so the same file can be re-uploaded
+        e.target.value = ''
+    }
     return (
         <Flex
             align="center"
@@ -112,7 +131,24 @@ export function Toolbar({ onPaletteToggle, paletteOpen, onZoomIn, onZoomOut, onZ
             </Flex>
 
             <Flex align="center" gap="2">
-                <Button radius="large" variant="soft" style={{cursor: 'pointer'}}>
+                <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    style={{ display: 'none' }}
+                    onChange={handleFileChange}
+                />
+                <Button radius="large" variant="soft" style={{cursor: 'pointer'}} onClick={handleUploadClick}>
+                    <Upload size={18} />
+                    <Text>UPLOAD</Text>
+                </Button>
+                <Button
+                    radius="large"
+                    variant="soft"
+                    style={{ cursor: hasResult ? 'pointer' : 'not-allowed', opacity: hasResult ? 1 : 0.5 }}
+                    onClick={hasResult ? onDownload : undefined}
+                    disabled={!hasResult}
+                >
                     <Download size={18} />
                     <Text>DOWNLOAD</Text>
                 </Button>
