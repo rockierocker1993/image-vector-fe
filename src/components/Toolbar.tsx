@@ -1,102 +1,126 @@
+import { Flex, IconButton, Button, Text, Separator, Badge, Tooltip } from '@radix-ui/themes'
 import * as ToggleGroup from '@radix-ui/react-toggle-group'
-import * as Tooltip from '@radix-ui/react-tooltip'
-import * as Separator from '@radix-ui/react-separator'
 import {
-  Layers,
-  Triangle,
-  Columns2,
-  ZoomIn,
-  ZoomOut,
-  Maximize,
-  Crop,
-  SlidersHorizontal,
-  ThumbsUp,
-  ThumbsDown,
-  Download,
-  X,
+    Palette,
+    ZoomIn,
+    ZoomOut,
+    Maximize,
+    SlidersHorizontal,
+    ThumbsUp,
+    ThumbsDown,
+    Download,
+    X,
 } from 'lucide-react'
 import './Toolbar.css'
 
 function ToolbarButton({
-  icon: Icon,
-  label,
-  onClick,
-  badge,
+    icon: Icon,
+    label,
+    onClick,
+    badge,
+    active,
+    customStyle,
 }: {
-  icon: React.ComponentType<{ size?: number }>
-  label: string
-  onClick?: () => void
-  badge?: string | number
+    icon: React.ComponentType<{ size?: number }>
+    label: string
+    onClick?: () => void
+    badge?: string | number
+    active?: boolean
+    customStyle?: React.CSSProperties
 }) {
-  return (
-    <Tooltip.Provider delayDuration={200}>
-      <Tooltip.Root>
-        <Tooltip.Trigger asChild>
-          <button className="toolbar-btn" onClick={onClick} aria-label={label}>
-            <Icon size={18} />
-            {badge !== undefined && <span className="toolbar-badge">{badge}</span>}
-          </button>
-        </Tooltip.Trigger>
-        <Tooltip.Portal>
-          <Tooltip.Content className="tooltip-content" sideOffset={5}>
-            {label}
-            <Tooltip.Arrow className="tooltip-arrow" />
-          </Tooltip.Content>
-        </Tooltip.Portal>
-      </Tooltip.Root>
-    </Tooltip.Provider>
-  )
+    return (
+        <Tooltip content={label}>
+            <IconButton
+                variant={active ? 'soft' : 'ghost'}
+                color={active ? 'blue' : 'gray'}
+                highContrast={!active}
+                size="2"
+                onClick={onClick}
+                aria-label={label}
+                style={{ ...customStyle }}
+            >
+                <Icon size={18} />
+                {badge !== undefined && (
+                    <Badge
+                        size="1"
+                        color="blue"
+                        variant="solid"
+                        radius="full"
+                        style={{
+                            position: 'absolute',
+                            top: -2,
+                            right: -2,
+                            fontSize: 10,
+                            minWidth: 18,
+                            height: 18,
+                            padding: '0 4px',
+                        }}
+                    >
+                        {badge}
+                    </Badge>
+                )}
+            </IconButton>
+        </Tooltip>
+    )
 }
 
-export function Toolbar() {
-  return (
-    <div className="toolbar">
-      <div className="toolbar-left">
-        {/* Layers / node count */}
-        <ToolbarButton icon={Layers} label="Layers" badge={10} />
+interface ToolbarProps {
+    onPaletteToggle: () => void
+    paletteOpen: boolean
+    onZoomIn: () => void
+    onZoomOut: () => void
+    onZoomReset: () => void
+    zoom: number
+}
 
-        <Separator.Root className="toolbar-separator" orientation="vertical" />
-
-        {/* View mode toggle */}
-        <ToggleGroup.Root
-          className="toggle-group"
-          type="single"
-          defaultValue="single"
-          aria-label="View mode"
+export function Toolbar({ onPaletteToggle, paletteOpen, onZoomIn, onZoomOut, onZoomReset, zoom }: ToolbarProps) {
+    return (
+        <Flex
+            align="center"
+            justify="between"
+            px="2"
+            style={{
+                paddingLeft: 32,
+                height: 60,
+                background: '#fff',
+                borderBottom: '1px solid #e5e5e5',
+                boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
+                zIndex: 10,
+                flexShrink: 0,
+            }}
         >
-          <ToggleGroup.Item className="toggle-group-item" value="single" aria-label="Single view">
-            <Triangle size={18} />
-          </ToggleGroup.Item>
-          <ToggleGroup.Item className="toggle-group-item" value="split" aria-label="Split view">
-            <Columns2 size={18} />
-          </ToggleGroup.Item>
-        </ToggleGroup.Root>
+            <Flex align="center" gap="4">
+                {/* Color palette / node count */}
+                <ToolbarButton icon={Palette} label="Color Palette" badge={10} onClick={onPaletteToggle} active={paletteOpen} />
+                {/* Zoom & fit controls */}
+                <ToolbarButton
+                    icon={ZoomIn}
+                    label="Zoom In"
+                    onClick={onZoomIn}
+                />
+                <Text size="1" weight="bold" color="gray" style={{ marginLeft: -12, marginRight: -12, minWidth: 40, textAlign: 'center', userSelect: 'none' }}>
+                    {Math.round(zoom * 100)}%
+                </Text>
+                <ToolbarButton icon={ZoomOut} label="Zoom Out" onClick={onZoomOut} />
+                <ToolbarButton icon={Maximize} label="Reset Zoom" onClick={onZoomReset} />
+                <ToolbarButton icon={SlidersHorizontal} label="Adjustments" />
 
-        <Separator.Root className="toolbar-separator" orientation="vertical" />
+                <Separator orientation="vertical" size="2" style={{ height: 24, margin: '0 6px' }} />
 
-        {/* Zoom & fit controls */}
-        <ToolbarButton icon={ZoomIn} label="Zoom In" />
-        <ToolbarButton icon={ZoomOut} label="Zoom Out" />
-        <ToolbarButton icon={Maximize} label="Fit to Screen" />
-        <ToolbarButton icon={Crop} label="Crop" />
-        <ToolbarButton icon={SlidersHorizontal} label="Adjustments" />
+                {/* Feedback */}
+                <ToolbarButton icon={ThumbsUp} label="Like" />
+                <ToolbarButton icon={ThumbsDown} label="Dislike" />
+            </Flex>
 
-        <Separator.Root className="toolbar-separator" orientation="vertical" />
-
-        {/* Feedback */}
-        <ToolbarButton icon={ThumbsUp} label="Like" />
-        <ToolbarButton icon={ThumbsDown} label="Dislike" />
-      </div>
-
-      <div className="toolbar-right">
-        <button className="download-btn">
-          <Download size={18} />
-          <span>DOWNLOAD</span>
-        </button>
-        <button className="close-btn" aria-label="Close">
-          <X size={22} />
-        </button>
-      </div>
-    </div>
-  )
+            <Flex align="center" gap="2">
+                <Button radius="large" variant="soft" style={{cursor: 'pointer'}}>
+                    <Download size={18} />
+                    <Text>DOWNLOAD</Text>
+                </Button>
+                <IconButton radius="large" variant="ghost" color="gray" highContrast aria-label="Close" size="3">
+                    <X size={22} />
+                </IconButton>
+            </Flex>
+        </Flex>
+    )
 }

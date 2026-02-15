@@ -1,0 +1,164 @@
+.color-palette-panel {
+  position: fixed !important;
+  z-index: 100;
+  width: 460px;
+  max-height: 85vh;
+  overflow: hidden !important;
+  user-select: none;
+}
+
+/* Drag header */
+.palette-header {
+  height: 28px;
+  cursor: grab;
+  background: #fafafa;
+  border-bottom: 1px solid #eee;
+  flex-shrink: 0;
+}
+
+.palette-header:active {
+  cursor: grabbing;
+}
+
+/* Content area */
+.palette-content {
+  cursor: default;
+}
+
+/* Color cluster (parent wrapper) */
+.color-cluster {
+  position: relative;
+  cursor: grab;
+  flex-shrink: 0;
+  border-radius: 50%;
+  transition: transform 0.15s, opacity 0.15s;
+}
+
+/* Hover: show white border on main circle only when no child is hovered */
+.color-cluster:hover:not(:has(.cluster-child:hover)) > .cluster-main {
+  border-color: #4a90d9;
+  box-shadow: 0 0 0 3px rgba(74, 144, 217, 0.4);
+}
+
+.color-cluster:active {
+  cursor: grabbing;
+}
+
+/* While being dragged — dim the source */
+.color-cluster.cluster-dragging {
+  opacity: 0.3;
+  transform: scale(0.95);
+  pointer-events: none;
+}
+
+/* Drop target highlight */
+.color-cluster.cluster-drop-target {
+  transform: scale(1.1);
+  box-shadow: 0 0 0 4px rgba(74, 144, 217, 0.6);
+  z-index: 5;
+}
+
+/* Drag ghost that follows cursor */
+.circle-drag-ghost {
+  position: fixed;
+  z-index: 9999;
+  pointer-events: none;
+  opacity: 0.85;
+  border-radius: 50%;
+  filter: drop-shadow(0 4px 12px rgba(0,0,0,0.3));
+  cursor: grabbing;
+}
+
+/* Main circle of a cluster */
+.cluster-main {
+  position: absolute;
+  top: 0;
+  left: 0;
+  border-radius: 50%;
+  border: 2px solid rgba(0, 0, 0, 0.1);
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+/* Checkerboard pattern circle (transparency) */
+.checkerboard-circle {
+  background-color: #fff !important;
+  background-image:
+    linear-gradient(45deg, #ccc 25%, transparent 25%),
+    linear-gradient(-45deg, #ccc 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #ccc 75%),
+    linear-gradient(-45deg, transparent 75%, #ccc 75%) !important;
+  background-size: 12px 12px !important;
+  background-position:
+    0 0,
+    0 6px,
+    6px -6px,
+    -6px 0px !important;
+}
+
+/* Child circles overlapping the main */
+.cluster-child {
+  position: absolute;
+  border-radius: 50%;
+  border: 2px solid rgba(0, 0, 0, 0.12);
+  z-index: 1;
+  cursor: grab;
+  transition: opacity 0.15s, transform 0.15s, border-color 0.15s, box-shadow 0.15s;
+}
+
+.cluster-child:hover {
+  transform: scale(1.1);
+  z-index: 2;
+  border-color: #4a90d9;
+  box-shadow: 0 0 0 3px rgba(74, 144, 217, 0.4);
+}
+
+.cluster-child:active {
+  cursor: grabbing;
+}
+
+/* Child being dragged — dim in place */
+.cluster-child.child-dragging {
+  opacity: 0.25;
+  pointer-events: none;
+}
+
+/* Child ghost */
+.circle-drag-ghost.child-ghost {
+  border: 2px solid rgba(0, 0, 0, 0.15);
+}
+
+/* No selection on clusters */
+
+/* Preset circles */
+.preset-circle {
+  position: relative;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 2px solid rgba(0, 0, 0, 0.08);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.15s, box-shadow 0.15s;
+  padding: 0;
+  outline: none;
+}
+
+.preset-circle:hover {
+  transform: scale(1.1);
+}
+
+.preset-circle.preset-selected {
+  border-color: #4a90d9;
+  box-shadow: 0 0 0 3px rgba(74, 144, 217, 0.3);
+  transform: scale(1.08);
+}
+
+.preset-number {
+  font-size: 11px;
+  font-weight: 700;
+  color: #333;
+  text-shadow: 0 0 3px rgba(255, 255, 255, 0.9);
+  pointer-events: none;
+}
