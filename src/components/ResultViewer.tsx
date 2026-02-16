@@ -17,22 +17,12 @@ export function ResultViewer({ zoom, onWheelZoom, svgContent, fileName }: Result
   const panStart = useRef({ x: 0, y: 0 })
 
   const handleWheel = useCallback(
-    (e: WheelEvent) => {
+    (e: React.WheelEvent) => {
       e.preventDefault()
       onWheelZoom(e.deltaY)
     },
     [onWheelZoom]
   )
-
-  useEffect(() => {
-    const canvas = canvasRef.current
-    if (!canvas) return
-
-    canvas.addEventListener('wheel', handleWheel, { passive: false })
-    return () => {
-      canvas.removeEventListener('wheel', handleWheel)
-    }
-  }, [handleWheel])
 
   const handleMouseDown = useCallback(
     (e: React.MouseEvent) => {
@@ -72,6 +62,7 @@ export function ResultViewer({ zoom, onWheelZoom, svgContent, fileName }: Result
       <Box
         ref={canvasRef}
         className={`result-canvas${dragging ? ' is-dragging' : ''}`}
+        onWheel={handleWheel}
         onMouseDown={handleMouseDown}
       >
         <Box

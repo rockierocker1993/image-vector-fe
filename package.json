@@ -28,6 +28,6 @@
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
     "svgson": "^5.3.1",
-    "vectortracer": "^0.1.2"
+    "vtracer-wasm": "file:vtracer-wasm/pkg"
   }
 }
