@@ -11,6 +11,8 @@ import {
     Download,
     X,
     Upload,
+    Square,
+    Columns2,
 } from 'lucide-react'
 import './Toolbar.css'
 
@@ -75,9 +77,11 @@ interface ToolbarProps {
     onUpload: (file: File) => void
     onDownload: () => void
     hasResult: boolean
+    viewMode: 'single' | 'split'
+    onViewModeChange: (mode: 'single' | 'split') => void
 }
 
-export function Toolbar({ onPaletteToggle, paletteOpen, onZoomIn, onZoomOut, onZoomReset, zoom, onUpload, onDownload, hasResult }: ToolbarProps) {
+export function Toolbar({ onPaletteToggle, paletteOpen, onZoomIn, onZoomOut, onZoomReset, zoom, onUpload, onDownload, hasResult, viewMode, onViewModeChange }: ToolbarProps) {
     const fileInputRef = useRef<HTMLInputElement>(null)
 
     const handleUploadClick = () => {
@@ -107,9 +111,18 @@ export function Toolbar({ onPaletteToggle, paletteOpen, onZoomIn, onZoomOut, onZ
                 flexShrink: 0,
             }}
         >
-            <Flex align="center" gap="4">
+            <Flex align="center" gap="2">
                 {/* Color palette / node count */}
                 <ToolbarButton icon={Palette} label="Color Palette" badge={10} onClick={onPaletteToggle} active={paletteOpen} />
+
+                <Separator orientation="vertical" size="2" style={{ height: 24, margin: '0 6px' }} />
+
+                {/* View mode */}
+                <ToolbarButton icon={Square} label="Single View" onClick={() => onViewModeChange('single')} active={viewMode === 'single'} />
+                <ToolbarButton icon={Columns2} label="Split View" onClick={() => onViewModeChange('split')} active={viewMode === 'split'} />
+
+                <Separator orientation="vertical" size="2" style={{ height: 24, margin: '0 6px' }} />
+
                 {/* Zoom & fit controls */}
                 <ToolbarButton
                     icon={ZoomIn}
@@ -121,13 +134,13 @@ export function Toolbar({ onPaletteToggle, paletteOpen, onZoomIn, onZoomOut, onZ
                 </Text>
                 <ToolbarButton icon={ZoomOut} label="Zoom Out" onClick={onZoomOut} />
                 <ToolbarButton icon={Maximize} label="Reset Zoom" onClick={onZoomReset} />
-                <ToolbarButton icon={SlidersHorizontal} label="Adjustments" />
+                {/* <ToolbarButton icon={SlidersHorizontal} label="Adjustments" /> */}
 
-                <Separator orientation="vertical" size="2" style={{ height: 24, margin: '0 6px' }} />
+                {/* <Separator orientation="vertical" size="2" style={{ height: 24, margin: '0 6px' }} /> */}
 
                 {/* Feedback */}
-                <ToolbarButton icon={ThumbsUp} label="Like" />
-                <ToolbarButton icon={ThumbsDown} label="Dislike" />
+                {/* <ToolbarButton icon={ThumbsUp} label="Like" /> */}
+                {/* <ToolbarButton icon={ThumbsDown} label="Dislike" /> */}
             </Flex>
 
             <Flex align="center" gap="2">

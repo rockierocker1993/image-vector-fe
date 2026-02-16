@@ -4,6 +4,7 @@ import { Toolbar } from './components/Toolbar'
 import { ResultViewer } from './components/ResultViewer'
 import { ColorPalettePanel } from './components/ColorPalettePanel'
 import { VectorizeProgressDialog } from './components/VectorizeProgressDialog'
+import { optimize } from "svgo/browser";
 import './App.css'
 
 
@@ -17,11 +18,15 @@ const traceWorker = new Worker(
 );
 
 let nextMsgId = 0;
-function traceImageInWorker(data: Uint8Array): Promise<string> {
+function traceImageInWorker(data: Uint8Array, onProgress?: (percent: number) => void): Promise<string> {
   return new Promise((resolve, reject) => {
     const id = nextMsgId++;
     const handler = (e: MessageEvent) => {
       if (e.data.id !== id) return;
+      if (e.data.type === 'progress') {
+        onProgress?.(e.data.percent);
+        return;
+      }
       traceWorker.removeEventListener('message', handler);
       if (e.data.error) {
         reject(new Error(e.data.error));
@@ -39,6 +44,8 @@ function App() {
   const [zoom, setZoom] = useState(1)
   const [svgContent, setSvgContent] = useState<string | null>(null)
   const [uploadFileName, setUploadFileName] = useState<string | null>(null)
+  const [originalImageUrl, setOriginalImageUrl] = useState<string | null>(null)
+  const [viewMode, setViewMode] = useState<'single' | 'split'>('single')
 
   // Upload state
   const [uploadOpen, setUploadOpen] = useState(false)
@@ -71,12 +78,36 @@ function App() {
     setUploadProgress(0)
     setUploadStatus('processing')
     setUploadError(undefined)
+    // Store original image as object URL for split view
+    if (originalImageUrl) URL.revokeObjectURL(originalImageUrl)
+    setOriginalImageUrl(URL.createObjectURL(file))
     // Baca file sebagai Uint8Array
     const arrayBuffer = await file.arrayBuffer();
     const data = new Uint8Array(arrayBuffer);
     try {
-      const svg = await traceImageInWorker(data);
-      setSvgContent(svg);
+      const svg = await traceImageInWorker(data, (percent) => {
+        setUploadProgress(percent);
+      });
+      const optimizedSvg = optimize(svg, {
+        multipass: true,
+        plugins: [
+          "removeDoctype",
+          "removeComments",
+          "removeMetadata",
+          "removeEditorsNSData",
+          "cleanupAttrs",
+          {
+            name: "convertPathData",
+            params: {
+              floatPrecision: 3
+            }
+          }
+        ]
+      });
+
+      console.log("Original SVG size:", svg.length, "bytes")
+      console.log('SVG optimized:', optimizedSvg.data.length, 'bytes')
+      setSvgContent(optimizedSvg.data);
       setUploadStatus('done')
       setTimeout(() => setUploadOpen(false), 600)
     } catch (err) {
@@ -118,8 +149,17 @@ function App() {
         onUpload={handleUpload}
         onDownload={handleDownload}
         hasResult={!!svgContent}
+        viewMode={viewMode}
+        onViewModeChange={setViewMode}
       />
-      <ResultViewer zoom={zoom} onWheelZoom={handleWheelZoom} svgContent={svgContent} fileName={uploadFileName} />
+      <ResultViewer
+        zoom={zoom}
+        onWheelZoom={handleWheelZoom}
+        svgContent={svgContent}
+        fileName={uploadFileName}
+        viewMode={viewMode}
+        originalImageUrl={originalImageUrl}
+      />
       {showPalette && <ColorPalettePanel onClose={() => setShowPalette(false)} />}
       <VectorizeProgressDialog
         open={uploadOpen}

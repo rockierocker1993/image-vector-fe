@@ -27,6 +27,7 @@
     "lucide-react": "^0.564.0",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
+    "svgo": "^4.0.0",
     "svgson": "^5.3.1",
     "vtracer-wasm": "file:vtracer-wasm/pkg"
   }
